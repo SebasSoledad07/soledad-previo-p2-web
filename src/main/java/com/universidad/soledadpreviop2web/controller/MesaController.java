@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/mesas")
@@ -30,13 +31,23 @@ public class MesaController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Mesa> crear(@RequestBody Mesa mesa) {
+	public ResponseEntity<?> crear(@RequestBody Mesa mesa) {
+		Map<String, String> errores = mesaService.validar(mesa);
+		if (!errores.isEmpty()) {
+			return ResponseEntity.badRequest().body(errores);
+		}
+
 		Mesa nuevaMesa = mesaService.save(mesa);
 		return ResponseEntity.status(HttpStatus.CREATED).body(nuevaMesa);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Mesa> actualizar(@PathVariable int id, @RequestBody Mesa mesa) {
+	public ResponseEntity<?> actualizar(@PathVariable int id, @RequestBody Mesa mesa) {
+		Map<String, String> errores = mesaService.validar(mesa);
+		if (!errores.isEmpty()) {
+			return ResponseEntity.badRequest().body(errores);
+		}
+
 		Mesa mesaActualizada = mesaService.update(id, mesa);
 		if (mesaActualizada == null) {
 			return ResponseEntity.notFound().build();
